@@ -1,0 +1,23 @@
+name: filoo
+displayName: filoo URL Shortener
+description: MCP server for filoo.app. Create short links, list and update them, and pull click stats for AI agents.
+homepage: https://filoo.app
+repository: https://github.com/filooapp/mcp-server
+license: MIT
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    required:
+      - filooApiKey
+    properties:
+      filooApiKey:
+        type: string
+        title: filoo API key
+        description: Your filoo API key from https://filoo.app/dashboard/api (starts with flo_live_). Requires the agents or pro tier.
+  commandFunction: |-
+    (config) => ({
+      command: "node",
+      args: ["dist/index.js"],
+      env: { FILOO_API_KEY: config.filooApiKey }
+    })

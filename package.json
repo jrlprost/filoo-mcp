@@ -1,0 +1,52 @@
+{
+  "name": "@filooapp/mcp-server",
+  "version": "0.1.0",
+  "description": "MCP server for filoo.app — URL shortener and click tracking for AI agents.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "mcp-server-filoo": "dist/index.js"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "smithery.yaml"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "url-shortener",
+    "filoo",
+    "ai-agents",
+    "claude",
+    "cursor",
+    "anthropic",
+    "link-shortener",
+    "analytics"
+  ],
+  "author": "filoo",
+  "homepage": "https://filoo.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/filooapp/mcp-server"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4",
+    "@types/node": "^20.14.10"
+  }
+}
