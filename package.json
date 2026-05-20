@@ -1,6 +1,6 @@
 {
   "name": "@filooapp/mcp-server",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "mcpName": "io.github.jrlprost/filoo-mcp",
   "description": "MCP server for filoo.app — URL shortener and click tracking for AI agents.",
   "license": "MIT",

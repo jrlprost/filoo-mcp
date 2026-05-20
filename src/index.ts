@@ -20,7 +20,13 @@ import { z } from "zod";
 
 const API_BASE = process.env.FILOO_API_BASE || "https://filoo.app/api/v1";
 const PKG_NAME = "@filooapp/mcp-server";
-const PKG_VERSION = "0.1.0";
+const PKG_VERSION = "0.2.0";
+const REQUEST_TIMEOUT_MS = Number(process.env.FILOO_TIMEOUT_MS) || 30_000;
+
+function log(msg: string): void {
+  // stderr only — stdout is reserved for JSON-RPC.
+  process.stderr.write(`[${new Date().toISOString()}] ${PKG_NAME} ${msg}\n`);
+}
 
 // ---------- argv handling (so `--help` / `--version` work as a CLI) ----------
 
@@ -91,16 +97,32 @@ async function filooFetch({ method, path, body, query }: ApiCallOptions): Promis
   if (body !== undefined) headers["Content-Type"] = "application/json";
 
   let res: Response;
+  const controller = new AbortController();
+  const t = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  const started = Date.now();
+  log(`→ ${method} ${path}`);
   try {
     res = await fetch(url, {
       method,
       headers,
       body: body !== undefined ? JSON.stringify(body) : undefined,
+      signal: controller.signal,
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
+    if ((err as { name?: string })?.name === "AbortError") {
+      log(`✗ ${method} ${path} timed out after ${REQUEST_TIMEOUT_MS}ms`);
+      throw new Error(
+        `filoo API request timed out after ${REQUEST_TIMEOUT_MS}ms (${method} ${path}). ` +
+          `Set FILOO_TIMEOUT_MS in env to override.`,
+      );
+    }
+    log(`✗ ${method} ${path} network error: ${msg}`);
     throw new Error(`Network error calling filoo API: ${msg}`);
+  } finally {
+    clearTimeout(t);
   }
+  log(`← ${method} ${path} ${res.status} in ${Date.now() - started}ms`);
 
   const text = await res.text();
   let parsed: unknown = text;
@@ -356,10 +378,13 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
 });
 
 async function main(): Promise<void> {
+  log(`v${PKG_VERSION} starting (API ${API_BASE}, timeout ${REQUEST_TIMEOUT_MS}ms)`);
+  if (!process.env.FILOO_API_KEY) {
+    log("WARNING: FILOO_API_KEY not set — tool calls will fail until configured");
+  }
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  // Log to stderr so it doesn't pollute the stdio JSON-RPC channel.
-  process.stderr.write(`${PKG_NAME} v${PKG_VERSION} ready on stdio (API ${API_BASE})\n`);
+  log(`v${PKG_VERSION} ready on stdio`);
 }
 
 main().catch((err) => {
