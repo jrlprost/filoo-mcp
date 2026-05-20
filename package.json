@@ -1,6 +1,7 @@
 {
   "name": "@filooapp/mcp-server",
-  "version": "0.1.0",
+  "version": "0.1.1",
+  "mcpName": "io.github.jrlprost/filoo-mcp",
   "description": "MCP server for filoo.app — URL shortener and click tracking for AI agents.",
   "license": "MIT",
   "type": "module",
@@ -36,7 +37,7 @@
   "homepage": "https://filoo.app",
   "repository": {
     "type": "git",
-    "url": "https://github.com/filooapp/mcp-server"
+    "url": "https://github.com/jrlprost/filoo-mcp"
   },
   "engines": {
     "node": ">=18"
